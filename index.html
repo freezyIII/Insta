@@ -71,6 +71,39 @@
             cursor: pointer;
         }
         
+        .divider {
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #dbdbdb;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            color: #737373;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .facebook-login {
+            margin-top: 20px;
+            color: #385185;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+        }
+        
         .container {
             max-width: 100%;
             margin: 0 auto;
@@ -89,6 +122,10 @@
         <input type="password" class="input" placeholder="password">
         <a href="#" class="forgot">forgotten password?</a>
         <button class="login-btn">log in</button>
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        <a href="#" class="facebook-login">Log in with Facebook</a>
     </div>
 </body>
 </html>
