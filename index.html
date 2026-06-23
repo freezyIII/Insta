@@ -23,7 +23,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
         }
         
         .logo {
@@ -36,9 +42,9 @@
         .input {
             width: 100%;
             max-width: 350px;
-            padding: 20px 16px;
+            padding: 25px 16px 15px 16px;
             margin: 0 0 0 0;
-            border: 1px solid #273741;
+            border: 1px solid #475055;
             border-radius: 12px;
             background-color: transparent;
             font-size: 16px;
@@ -47,8 +53,32 @@
             font-weight: normal;
         }
         
-        .input::placeholder {
-            color: #4F5F6A;
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .floating-label {
+            position: absolute;
+            left: 16px;
+            top: 20px;
+            color: #475055;
+            font-size: 16px;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .input:focus + .floating-label,
+        .input:not(:placeholder-shown) + .floating-label {
+            top: 5px;
+            left: 16px;
+            font-size: 12px;
+            color: #475055;
+            background-color: transparent;
+            padding: 0;
         }
         
         .input:first-of-type {
@@ -225,7 +255,6 @@
         }
         
         .language-selector {
-            margin-top: 10px;
             color: #e0e0e0cb;
             font-size: 14px;
             cursor: pointer;
@@ -237,9 +266,13 @@
     <div class="language-selector">English (US)</div>
     <i data-visualcompletion="css-img" aria-label="Instagram" class="x15mokao x1ga7v0g x16uus16 xbiv7yw" role="img" style="background-image: url(&quot;https://i.postimg.cc/V6wtSw-k9/aa-(1).png&quot;); background-position: center; background-size: contain; width: 70px; height: 70px; background-repeat: no-repeat; display: inline-block; margin-top: 60px;"></i>
     <div class="form">
-        <input type="text" class="input" placeholder="Username, email or mobile number">
-        <div class="password-container">
-            <input type="password" class="input" placeholder="Password" id="passwordInput">
+        <div class="input-wrapper">
+            <input type="text" class="input" placeholder=" ">
+            <label class="floating-label">Username, email or mobile number</label>
+        </div>
+        <div class="input-wrapper">
+            <input type="password" class="input" placeholder=" " id="passwordInput">
+            <label class="floating-label">Password</label>
         </div>
         <button class="login-btn">Log in</button>
         <a href="#" class="forgot">Forgot password?</a>
