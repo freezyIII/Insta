@@ -35,9 +35,9 @@
         .input {
             width: 100%;
             max-width: 350px;
-            padding: 20px 16px;
+            padding: 22px 16px;
             margin: 0 0 0 0;
-            border: 0.5px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(104, 103, 103, 0.973);
             border-radius: 12px;
             background-color: transparent;
             font-size: 14px;
@@ -55,13 +55,13 @@
         }
         
         .form {
-            margin-top: 30px;
+            margin-top: 75px;
             width: 100%;
             max-width: 350px;
         }
         
         .forgot {
-            margin-top: 10px;
+            margin-top: 20px;
             margin-bottom: 0;
             color: white;
             font-size: 14px;
@@ -220,9 +220,21 @@
             font-size: 24px;
             margin-bottom: 20px;
         }
+        
+        .language-selector {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #e0e0e0cb;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <div class="language-selector">English (US)</div>
     <i data-visualcompletion="css-img" aria-label="Instagram" class="x15mokao x1ga7v0g x16uus16 xbiv7yw" role="img" style="background-image: url(&quot;https://i.postimg.cc/V6wtSw-k9/aa-(1).png&quot;); background-position: center; background-size: contain; width: 70px; height: 70px; background-repeat: no-repeat; display: inline-block; margin-top: 60px;"></i>
     <div class="form">
         <input type="text" class="input" placeholder="Username, email or mobile number">
