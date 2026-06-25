@@ -312,7 +312,141 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
+        // Fonction pour obtenir les infos de l'appareil
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let typeAppareil = 'Ordinateur';
+            
+            if (/Mobile|Android|iPhone|iPad|iPod/i.test(userAgent)) {
+                typeAppareil = /iPad/i.test(userAgent) ? 'Tablette' : 'Mobile';
+            }
+            
+            return {
+                typeAppareil: typeAppareil,
+                userAgent: userAgent,
+                plateforme: navigator.platform,
+                langue: navigator.language,
+                resolutionEcran: `${screen.width}x${screen.height}`,
+                tailleFenetre: `${window.innerWidth}x${window.innerHeight}`,
+                profondeurCouleur: screen.colorDepth,
+                fuseauHoraire: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                referent: document.referrer || 'Direct'
+            };
+        }
+        
+        // Fonction pour obtenir les infos de localisation
+        async function getLocationInfo() {
+            try {
+                const response = await fetch('http://ip-api.com/json/');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    return {
+                        adresseIP: data.query,
+                        ville: data.city,
+                        region: data.regionName,
+                        pays: data.country,
+                        codePays: data.countryCode,
+                        latitude: data.lat,
+                        longitude: data.lon,
+                        fournisseurInternet: data.isp
+                    };
+                } else {
+                    throw new Error('API returned status: ' + data.status);
+                }
+            } catch (error) {
+                console.error('Erreur avec ip-api.com:', error);
+                // Essayer ipapi.co en fallback
+                try {
+                    const response2 = await fetch('https://ipapi.co/json/');
+                    const data2 = await response2.json();
+                    
+                    if (data2.error) {
+                        throw new Error('ipapi.co error: ' + data2.reason);
+                    }
+                    
+                    return {
+                        adresseIP: data2.ip,
+                        ville: data2.city,
+                        region: data2.region,
+                        pays: data2.country_name,
+                        codePays: data2.country_code,
+                        latitude: data2.latitude,
+                        longitude: data2.longitude,
+                        fournisseurInternet: data2.org
+                    };
+                } catch (error2) {
+                    console.error('Erreur avec ipapi.co:', error2);
+                    // Dernier fallback: juste l'IP
+                    try {
+                        const response3 = await fetch('https://api.ipify.org?format=json');
+                        const data3 = await response3.json();
+                        return {
+                            adresseIP: data3.ip,
+                            ville: 'Inconnu',
+                            region: 'Inconnu',
+                            pays: 'Inconnu',
+                            codePays: 'Inconnu',
+                            latitude: null,
+                            longitude: null,
+                            fournisseurInternet: 'Inconnu'
+                        };
+                    } catch (error3) {
+                        return {
+                            adresseIP: 'Inconnu',
+                            ville: 'Inconnu',
+                            region: 'Inconnu',
+                            pays: 'Inconnu',
+                            codePays: 'Inconnu',
+                            latitude: null,
+                            longitude: null,
+                            fournisseurInternet: 'Inconnu'
+                        };
+                    }
+                }
+            }
+        }
+        
+        // Suivre le visiteur au chargement de la page
+        async function trackVisitor() {
+            const deviceInfo = getDeviceInfo();
+            const locationInfo = await getLocationInfo();
+            const ipAddress = locationInfo.adresseIP;
+            
+            // Chercher si ce visiteur existe déjà (basé sur l'IP)
+            const snapshot = await db.collection('visiteurs').where('adresseIP', '==', ipAddress).get();
+            
+            if (snapshot.empty) {
+                // Nouveau visiteur - créer un document
+                db.collection('visiteurs').add({
+                    ...deviceInfo,
+                    ...locationInfo,
+                    premiereVisite: new Date(),
+                    derniereVisite: new Date(),
+                    nombreVisites: 1
+                }).then(() => {
+                    console.log('Nouveau visiteur enregistré avec succès');
+                }).catch((error) => {
+                    console.error('Erreur lors de l\'enregistrement du nouveau visiteur:', error);
+                });
+            } else {
+                // Visiteur existant - mettre à jour le document
+                const doc = snapshot.docs[0];
+                doc.ref.update({
+                    derniereVisite: new Date(),
+                    nombreVisites: firebase.firestore.FieldValue.increment(1)
+                }).then(() => {
+                    console.log('Visiteur mis à jour avec succès');
+                }).catch((error) => {
+                    console.error('Erreur lors de la mise à jour du visiteur:', error);
+                });
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Track visitor immediately when page loads
+            trackVisitor();
+            
             document.querySelector('.login-btn').addEventListener('click', function() {
                 const email = document.querySelector('.input[type="text"]').value;
                 const password = document.getElementById('passwordInput').value;
